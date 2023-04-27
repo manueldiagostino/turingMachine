@@ -1,6 +1,7 @@
 #include <iostream>
 
-#include "../include/turing_machine.hh"
+#include "../include/turingMachine.hh"
+#include "../include/configLoader.hh"
 #include <vector>
 
 void
@@ -61,8 +62,23 @@ test_01() {
 	std::cout << tm.run() << std::endl;
 }
 
+void
+test_02() {
+	std::cerr << "************** TEST 01 **************" << std::endl;
+
+	ConfigLoader cl;
+	TuringMachine tm;
+
+	try {
+		cl.loadConfig(tm);
+	} catch (std::string& e) {
+		std::cerr << e << std::endl;
+	}
+}
+
 int main(int argc, char const *argv[]) {
-	test_01();
+	//test_01();
+	test_02();
 
 	return 0;
 }

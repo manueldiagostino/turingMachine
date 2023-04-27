@@ -1,4 +1,4 @@
-#include "../include/turing_machine.hh"
+#include "../include/turingMachine.hh"
 
 TuringMachine::TuringMachine(
 	const Alphabet_& alphabet, const States_& states, 

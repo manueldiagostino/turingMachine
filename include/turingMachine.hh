@@ -19,6 +19,7 @@ public:
 	using Alphabet_ = std::set<Symbol_>;
 	using Key_ = std::pair<State_, Symbol_>;
 	using Value_ = std::tuple<State_, Symbol_, Moves_>;
+	using Instructions_type_ = std::pair<Key_, Value_>;
 	using Instructions_ = std::map<Key_, Value_>;
 	using Memory_ = std::deque<Symbol_>;
 
@@ -48,7 +49,6 @@ public:
 	size_t eraseInstruction(Key_& key);
 
 	const Memory_& run();
-
 private:
 	Alphabet_ alphabet_;
 	States_ states_;
@@ -153,6 +153,17 @@ std::ostream& operator <<(
 	}
 	os << '}';
 	return os;
+}
+
+inline 
+TuringMachine::Moves_
+make_move(const std::string& s) {
+	if (s == "L" || s == "l")
+		return TuringMachine::Moves_::left;
+	else if (s == "R" || s == "r")
+		return TuringMachine::Moves_::right;
+	else
+		throw std::string("Error: uknown move");
 }
 
 #endif // ! TURING_MACHINE_HH
