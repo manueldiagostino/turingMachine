@@ -41,6 +41,9 @@ public:
 	void setStates(States_&& states);
 	void setInstructions(Instructions_&& instructions);
 	void setMemory(Memory_&& memory);
+	void setHead();
+
+	Memory_& getMemory();
 
 	std::pair<States_::iterator, bool> insertState(const State_& state);
 	std::pair<Alphabet_::iterator, bool> insertSymbol(const Symbol_& symbol);

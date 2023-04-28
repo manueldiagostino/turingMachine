@@ -73,7 +73,8 @@ test_02() {
 	TuringMachine tm;
 
 	try {
-		cl.loadConfig(tm);
+		cl.loadConfig(tm, "config.tm");
+		std::cerr << tm.run() << std::endl;
 	} catch (std::string& e) {
 		std::cerr << e << std::endl;
 	}

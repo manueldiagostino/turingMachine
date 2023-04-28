@@ -14,11 +14,7 @@ TuringMachine::TuringMachine(
 
 		#ifdef DEBUG
 		std::cerr << "Macchina costruita" << std::endl;
-		std::cerr << "\tAlphabet: " << alphabet_ << std::endl;
-		std::cerr << "\tStates: " << states_ << std::endl;
-		std::cerr << "\tInitial state: " << currentState_ << std::endl;
-		std::cerr << "\tInstructions: " << instructions_ << std::endl;
-		std::cerr << "\tMemory: " << memory_ << std::endl;
+		print_all();
 		#endif
 	}
 
@@ -45,6 +41,17 @@ TuringMachine::setInstructions(Instructions_&& instructions) {
 void
 TuringMachine::setMemory(Memory_&& memory) {
 	memory_ = memory;
+	setHead();
+}
+
+void
+TuringMachine::setHead() {
+	headPosition_ = memory_.begin();
+}
+
+TuringMachine::Memory_& 
+TuringMachine::getMemory() {
+	return memory_;
 }
 
 std::pair<TuringMachine::States_::iterator, bool>  
@@ -135,6 +142,9 @@ TuringMachine::changeState() {
 
 const TuringMachine::Memory_&
 TuringMachine::run() {
+	#ifdef DEBUG
+	std::cerr << "run begin" << std::endl;
+	#endif
 
 	try {
 		while (true) {
