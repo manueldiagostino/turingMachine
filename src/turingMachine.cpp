@@ -115,8 +115,10 @@ TuringMachine::changeState() {
 	#endif
 
 	currentState_ = std::get<STATE>(next);
-	headPosition_= memory_.erase(headPosition_); // now head is in the next position
-	headPosition_= memory_.insert(headPosition_, std::get<SYMBOL>(next)); // replace the deleted elem
+	/* headPosition_= memory_.erase(headPosition_); // now head is in the next position
+	// replace the deleted elem
+	headPosition_= memory_.insert(headPosition_, std::get<SYMBOL>(next));  */
+	*headPosition_ = std::get<SYMBOL>(next);
 	moveHead(std::get<MOVE>(next));
 
 	#ifdef DEBUG

@@ -6,6 +6,7 @@
 
 void
 test_01() {
+	std::cerr << std::endl;
 	std::cerr << "************** TEST 01 **************" << std::endl;
 
 	TuringMachine::Alphabet_ alphabet({"$", "0", "1"});;
@@ -60,11 +61,13 @@ test_01() {
 
 	std::cout << memory << std::endl;
 	std::cout << tm.run() << std::endl;
+	std::cerr << "********* TEST 01 COMPLETED *********" << std::endl;
 }
 
 void
 test_02() {
-	std::cerr << "************** TEST 01 **************" << std::endl;
+	std::cerr << std::endl;
+	std::cerr << "************** TEST 02 **************" << std::endl;
 
 	ConfigLoader cl;
 	TuringMachine tm;
@@ -74,10 +77,11 @@ test_02() {
 	} catch (std::string& e) {
 		std::cerr << e << std::endl;
 	}
+	std::cerr << "********* TEST 02 COMPLETED *********" << std::endl;
 }
 
 int main(int argc, char const *argv[]) {
-	//test_01();
+	test_01();
 	test_02();
 
 	return 0;

@@ -1,4 +1,5 @@
 #include <sstream>
+#include <cstring>
 
 #include "../include/configLoader.hh"
 
@@ -30,12 +31,20 @@ inline
 void
 ConfigLoader::eat_spaces() {
 	while (std::isspace(buffer_[pos_])) {
+		
 		if (buffer_[pos_] == '\n') {
 			++newlinesCount_;
 			charCount_ = 0;
+			++pos_;
+			continue;
 		}
-
-		incr();
+		else if (buffer_[pos_] == '\t') {
+			charCount_ += tabSize_; // incremento di 1 in meno, chiamo anche incr()
+			++pos_;
+			continue;
+		}
+		else
+			incr(); // incrementa anche charCount_
 	}
 }
 
@@ -74,7 +83,7 @@ ConfigLoader::parseMove() {
 }
 
 ConfigLoader::char_type
-ConfigLoader::parseAlnum() {
+ConfigLoader::parseID() {
 	if (std::isspace(buffer_[pos_]))
 		throw get_error("Expected an alphanumeric value, found space");
 
@@ -88,12 +97,12 @@ ConfigLoader::parseAlnum() {
 	return res;
 }
 
-std::string
+TuringMachine::Symbol_
 ConfigLoader::parseSymbol() {
 	if (std::isspace(buffer_[pos_]))
 		throw get_error("Expected an alphanumeric value, found space");
 
-	std::string res(1, parseAlnum());
+	std::string res(1, parseID());
 
 	if (buffer_[pos_] == ',' || std::isspace(buffer_[pos_])) {
 		eat_spaces();
@@ -103,7 +112,7 @@ ConfigLoader::parseSymbol() {
 	return res + parseSymbol();
 }
 
-std::string
+TuringMachine::State_
 ConfigLoader::parseState() {
 	return parseSymbol();
 }
@@ -172,8 +181,8 @@ ConfigLoader::parseInstructionList() {
 	eat_spaces();
 
 	TuringMachine::Instructions_type_ res = parseTuple();
+	instructions_.insert(std::move(res));
 	if (buffer_[pos_] == '}') {
-		instructions_.insert(std::move(res));
 		return;
 	}
 	else if (buffer_[pos_] != ',') {
@@ -187,6 +196,145 @@ ConfigLoader::parseInstructionList() {
 }
 
 
+void 
+ConfigLoader::parseSymbolsListAlphabet() {
+	eat_spaces();
+
+	alphabet_.insert(std::move(parseSymbol()));
+
+	if (buffer_[pos_] == '}') {
+		return;
+	}
+	else if (buffer_[pos_] != ',') {
+		throw get_error("Expected `,`, found <" + 
+			std::string(1, buffer_[pos_]) + ">");
+	}
+
+	incr();
+	eat_spaces();
+	parseSymbolsListAlphabet();
+}
+
+void 
+ConfigLoader::parseSymbolsListMemory() {
+	eat_spaces();
+
+	memory_.push_back(std::move(parseSymbol()));
+
+	if (buffer_[pos_] == '}') {
+		return;
+	}
+	else if (buffer_[pos_] != ',') {
+		throw get_error("Expected `,`, found <" + 
+			std::string(1, buffer_[pos_]) + ">");
+	}
+
+	incr();
+	eat_spaces();
+	parseSymbolsListMemory();
+}
+
+
+
+void
+ConfigLoader::parseOption() {
+	eat_spaces();
+
+	std::string instr = "instructions";
+	std::string alpha = "alphabet";
+	std::string mem = "memory";
+	std::string initState = "initial_state";
+
+	if (!strncmp(buffer_.c_str()+pos_, instr.c_str(), instr.size())) {
+		pos_ += instr.size();
+		charCount_ += instr.size();
+
+		eat_spaces();
+		if (buffer_[pos_] != '=')
+			throw get_error("Expected `=`, found <" + 
+			std::string(1, buffer_[pos_]) + ">");
+
+		incr();
+		eat_spaces();
+
+		if (buffer_[pos_] != '{')
+			throw get_error("Expected `{`, found <" + 
+			std::string(1, buffer_[pos_]) + ">");
+
+		incr();
+
+		parseInstructionList();
+	}
+	else if (!strncmp(buffer_.c_str()+pos_, alpha.c_str(), alpha.size())) {
+		pos_ += alpha.size();
+		charCount_ += alpha.size();
+
+		eat_spaces();
+		if (buffer_[pos_] != '=')
+			throw get_error("Expected `=`, found <" + 
+			std::string(1, buffer_[pos_]) + ">");
+
+		incr();
+		eat_spaces();
+
+		if (buffer_[pos_] != '{')
+			throw get_error("Expected `{`, found <" + 
+			std::string(1, buffer_[pos_]) + ">");
+
+		incr();
+
+		parseSymbolsListAlphabet();
+	}
+	else if (!strncmp(buffer_.c_str()+pos_, mem.c_str(), mem.size())) {
+		pos_ += mem.size();
+		charCount_ += mem.size();
+
+		eat_spaces();
+		if (buffer_[pos_] != '=')
+			throw get_error("Expected `=`, found <" + 
+			std::string(1, buffer_[pos_]) + ">");
+
+		incr();
+		eat_spaces();
+
+		if (buffer_[pos_] != '{')
+			throw get_error("Expected `{`, found <" + 
+			std::string(1, buffer_[pos_]) + ">");
+
+		incr();
+
+		parseSymbolsListMemory();
+	}
+	else if (!strncmp(buffer_.c_str()+pos_, initState.c_str(), initState.size())) {
+		pos_ += initState.size();
+		charCount_ += initState.size();
+
+		eat_spaces();
+		if (buffer_[pos_] != '=')
+			throw get_error("Expected `=`, found <" + 
+			std::string(1, buffer_[pos_]) + ">");
+
+		incr();
+		eat_spaces();
+
+		if (buffer_[pos_] != '{')
+			throw get_error("Expected `{`, found <" + 
+			std::string(1, buffer_[pos_]) + ">");
+
+		incr();
+		initialState_ = parseState();
+	}
+	else
+		throw get_error("Unknown option");
+
+	if (buffer_[pos_] != '}')
+			throw get_error("Expected `{`, found <" + 
+			std::string(1, buffer_[pos_]) + ">");
+
+	incr();
+	eat_spaces();
+}
+
 
 
 
@@ -195,20 +343,20 @@ ConfigLoader::parseInstructionList() {
 
 void
 ConfigLoader::parseElements() {
-	#ifdef DEBUG
-	std::cerr << "Parsing elements" << std::endl;
-	#endif
 	eat_spaces();
+	parseOption();
 
-	parseMove();
-	parseAlnum();
-	// TuringMachine::Instructions_type_ res = parseTuple();
-	// std::cerr << res.first.first << ", " << res.first.second << std::endl;
-	parseInstructionList();
+	if (buffer_[pos_] == '}') {
+		return;
+	}
+	else if (buffer_[pos_] != ',') {
+		throw get_error("Expected `,`, found <" + 
+			std::string(1, buffer_[pos_]) + ">");
+	}
 
-	#ifdef DEBUG
-	std::cerr << "Parsing elements finished" << std::endl;
-	#endif
+	incr();
+	eat_spaces();
+	parseElements();
 }
 
 void
@@ -236,129 +384,28 @@ ConfigLoader::loadConfig(const TuringMachine& turingMachine, const std::string& 
 
 	// check '{'
 	if (buffer_[pos_] != '{')
-		throw get_error("`}` not found, <" + std::string(1,buffer_[pos_]) + "> instead");
+		throw get_error("Expected `{`, found <" + 
+			std::string(1, buffer_[pos_]) + ">");
 
 	incr();
 	parseElements();
-	eat_spaces();
 
 	// check '}'
 	if (buffer_[pos_] != '}')
-		throw get_error("`}` not found, <" + std::string(1,buffer_[pos_]) + "> instead");
+		throw get_error("Expected `}`, found <" + 
+			std::string(1, buffer_[pos_]) + ">");
 	incr();
 
 	if (charCount_ == buffer_.length() || buffer_[charCount_] == '\n') {
 		charCount_ = 0;
 		++newlinesCount_;
 	}
-	incr();
+	incr(); // THE END
 
 	#ifdef DEBUG
 	std::cerr << "Parsing over" << std::endl;
+	std::cerr << "Alphabet: " << alphabet_ << std::endl;
+	std::cerr << "Instructions: " << instructions_ << std::endl;
+	std::cerr << "Memory: " << memory_ << std::endl;
 	#endif
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* 
-void
-ConfigLoader::loadTuple(std::pair<TuringMachine::Key_, TuringMachine::Value_>& instruction) {
-	if (!configFile_.is_open())
-		throw std::string("Config file not opened");
-
-	char angular;
-	configFile_ >> std::ws >> angular;
-
-	if (angular != '<')
-		throw std::string("Parsing error: expected '<'");
-
-	TuringMachine::State_ currState;
-	TuringMachine::Symbol_ currSymbol;
-	TuringMachine::State_ nextState;
-	TuringMachine::Symbol_ nextSymbol;
-	std::string move;
-	TuringMachine::Moves_ nextMove;
-
-	getline(configFile_ >> std::ws, currState, ',');
-	getline(configFile_ >> std::ws, currSymbol, ',');
-	getline(configFile_ >> std::ws, nextState, ',');
-	getline(configFile_ >> std::ws, nextSymbol, ',');
-	getline(configFile_ >> std::ws, move, '>');
-
-	nextMove = make_move(move);
-	
-	TuringMachine::Key_ key = std::make_pair(currState, currSymbol);
-	TuringMachine::Value_ value = std::make_tuple(nextState, nextSymbol, nextMove);
-
-	instructions_.insert(std::move(std::make_pair(key, value)));
-}
-
-void
-ConfigLoader::loadInstructions() {
-	if (!configFile_.is_open())
-		throw std::string("Config file not opened");
-
-	char par;
-
-	// elimino '{'
-	configFile_ >> std::ws >> par;
-	if (par != '{')
-		throw std::string("Parsing error: expected '{'");
-
-	std::pair<TuringMachine::Key_, TuringMachine::Value_> instruction;
-
-	char comma = ',';
-	while (comma == ',') {
-		loadTuple(instruction);
-		instructions_.insert(instruction);
-	}
-
-	// elimino '{'
-	configFile_ >> std::ws >> par;
-	if (par != '}')
-		throw std::string("Parsing error: expected '}'");		
-}
-
-void
-ConfigLoader::loadAlphabet() {
-
-}
-
-void
-ConfigLoader::loadConfig(const TuringMachine& turingMachine, const std::string& fileName) {
-	if (fileName != "")
-		fileName_ = fileName;
-
-	configFile_.open(fileName_);
-
-	const std::string INSTRUCTION = "instructions";
-	const std::string ALPHABET = "alphabet";
-	const std::string INITIAL_STATE = "initial state";
-
-	std::string key, value;
-
-	while (std::getline(configFile_ >> std::ws, key, '=')) {
-		key.erase(std::remove(key.begin(),key.end(),' '),key.end());
-
-		if (key == INSTRUCTION)
-			loadInstructions();
-		else if (key == ALPHABET)
-			loadAlphabet();
-	}
-
-
-} 
-*/

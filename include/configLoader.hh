@@ -25,29 +25,31 @@ private:
 	std::string fileName_;
 	std::ifstream configFile_;
 	TuringMachine::Instructions_ instructions_;
+	TuringMachine::Alphabet_ alphabet_;
+	TuringMachine::State_ initialState_;
+	TuringMachine::Memory_ memory_;
 
+	const size_t tabSize_ = 4;
 	size_t newlinesCount_;
 	size_t charCount_;
 	size_t pos_;
 	std::string buffer_;
 protected:
-	/* void loadTuple(std::pair<TuringMachine::Key_, TuringMachine::Value_>& instruction);
-	void loadInstructions();
-	void loadAlphabet(); */
-
 	void incr();
 	void eat_spaces();
 	bool is_valid_char(char_type c);
 
 	TuringMachine::Moves_ parseMove();
-	char_type parseAlnum();
-	std::string parseSymbol();
-	std::string parseState();
+	char_type parseID();
+	TuringMachine::Symbol_ parseSymbol();
+	TuringMachine::State_ parseState();
 	TuringMachine::Instructions_type_ parseTuple();
 	void parseInstructionList();
-	void parseObjects();
+	void parseSymbolsListAlphabet();
+	void parseSymbolsListMemory();
+	void parseOption();
 	void parseElements();
 	std::string get_error(const std::string& msg);
 };
 
-#endif // ! CONFIG_LOADER_HH_HH
+#endif // ! CONFIG_LOADER_HH
