@@ -83,13 +83,13 @@ ConfigLoader::parseMove() {
 }
 
 ConfigLoader::char_type
-ConfigLoader::parseID() {
-	if (std::isspace(buffer_[pos_]))
-		throw get_error("Expected an alphanumeric value, found space");
+ConfigLoader::parseChar() {
+	if (std::isspace(buffer_[pos_]) || buffer_[pos_] == ',')
+		return '\0';
 
 	char_type res = buffer_[pos_];
 	if (!is_valid_char(buffer_[pos_])) {
-		throw get_error("Expected an alphanumeric value, found <" + 
+		throw get_error("Expected a valid char_type value, found <" + 
 			std::string(1, buffer_[pos_]) + ">");
 	}
 
@@ -98,18 +98,21 @@ ConfigLoader::parseID() {
 }
 
 TuringMachine::Symbol_
-ConfigLoader::parseSymbol() {
-	if (std::isspace(buffer_[pos_]))
-		throw get_error("Expected an alphanumeric value, found space");
+ConfigLoader::parseID() {
+	std::string res(1, parseChar());
 
-	std::string res(1, parseID());
-
-	if (buffer_[pos_] == ',' || std::isspace(buffer_[pos_])) {
-		eat_spaces();
+	if (buffer_[pos_] == ',' || buffer_[pos_] == '}' || isspace(buffer_[pos_]))
 		return res;
-	}
 	
-	return res + parseSymbol();
+	return res + parseID();
+}
+
+TuringMachine::Symbol_ 
+ConfigLoader::parseSymbol() {
+	eat_spaces();
+	TuringMachine::Symbol_ res = parseID();
+	eat_spaces();
+	return res;
 }
 
 TuringMachine::State_
@@ -137,7 +140,7 @@ ConfigLoader::parseTuple() {
 	eat_spaces();
 
 
-	TuringMachine::Symbol_ currSymbol = parseSymbol();
+	TuringMachine::Symbol_ currSymbol = parseID();
 	if (buffer_[pos_] != ',') {
 		throw get_error("Expected `,`, found <" + 
 			std::string(1, buffer_[pos_]) + ">");
@@ -153,7 +156,7 @@ ConfigLoader::parseTuple() {
 	incr();
 	eat_spaces();
 
-	TuringMachine::Symbol_ newSymbol = parseSymbol();
+	TuringMachine::Symbol_ newSymbol = parseID();
 	if (buffer_[pos_] != ',') {
 		throw get_error("Expected `,`, found <" + 
 			std::string(1, buffer_[pos_]) + ">");
@@ -199,7 +202,6 @@ ConfigLoader::parseInstructionList() {
 void 
 ConfigLoader::parseSymbolsListAlphabet() {
 	eat_spaces();
-
 	alphabet_.insert(std::move(parseSymbol()));
 
 	if (buffer_[pos_] == '}') {
@@ -218,7 +220,6 @@ ConfigLoader::parseSymbolsListAlphabet() {
 void 
 ConfigLoader::parseSymbolsListMemory() {
 	eat_spaces();
-
 	memory_.push_back(std::move(parseSymbol()));
 
 	if (buffer_[pos_] == '}') {
@@ -234,7 +235,24 @@ ConfigLoader::parseSymbolsListMemory() {
 	parseSymbolsListMemory();
 }
 
+void 
+ConfigLoader::parseSymbolsListStates() {
+	eat_spaces();
 
+	states_.insert(std::move(parseSymbol()));
+
+	if (buffer_[pos_] == '}') {
+		return;
+	}
+	else if (buffer_[pos_] != ',') {
+		throw get_error("Expected `,`, found <" + 
+			std::string(1, buffer_[pos_]) + ">");
+	}
+
+	incr();
+	eat_spaces();
+	parseSymbolsListStates();
+}
 
 void
 ConfigLoader::parseOption() {
@@ -243,6 +261,7 @@ ConfigLoader::parseOption() {
 	std::string instr = "instructions";
 	std::string alpha = "alphabet";
 	std::string mem = "memory";
+	std::string states = "states";
 	std::string initState = "initial_state";
 
 	if (!strncmp(buffer_.c_str()+pos_, instr.c_str(), instr.size())) {
@@ -282,7 +301,6 @@ ConfigLoader::parseOption() {
 			std::string(1, buffer_[pos_]) + ">");
 
 		incr();
-
 		parseSymbolsListAlphabet();
 	}
 	else if (!strncmp(buffer_.c_str()+pos_, mem.c_str(), mem.size())) {
@@ -302,7 +320,6 @@ ConfigLoader::parseOption() {
 			std::string(1, buffer_[pos_]) + ">");
 
 		incr();
-
 		parseSymbolsListMemory();
 	}
 	else if (!strncmp(buffer_.c_str()+pos_, initState.c_str(), initState.size())) {
@@ -324,6 +341,25 @@ ConfigLoader::parseOption() {
 		incr();
 		initialState_ = parseState();
 	}
+	else if (!strncmp(buffer_.c_str()+pos_, states.c_str(), states.size())) {
+		pos_ += states.size();
+		charCount_ += states.size();
+
+		eat_spaces();
+		if (buffer_[pos_] != '=')
+			throw get_error("Expected `=`, found <" + 
+			std::string(1, buffer_[pos_]) + ">");
+
+		incr();
+		eat_spaces();
+
+		if (buffer_[pos_] != '{')
+			throw get_error("Expected `{`, found <" + 
+			std::string(1, buffer_[pos_]) + ">");
+
+		incr();
+		parseSymbolsListStates();
+	}
 	else
 		throw get_error("Unknown option");
 
@@ -334,12 +370,6 @@ ConfigLoader::parseOption() {
 	incr();
 	eat_spaces();
 }
-
-
-
-
-
-
 
 void
 ConfigLoader::parseElements() {
@@ -360,7 +390,7 @@ ConfigLoader::parseElements() {
 }
 
 void
-ConfigLoader::loadConfig(const TuringMachine& turingMachine, const std::string& fileName) {
+ConfigLoader::loadConfig(TuringMachine& turingMachine, const std::string& fileName) {
 	if (fileName != "")
 		fileName_ = fileName;
 
@@ -402,10 +432,14 @@ ConfigLoader::loadConfig(const TuringMachine& turingMachine, const std::string& 
 	}
 	incr(); // THE END
 
+	turingMachine.setInitialState(std::move(initialState_));
+	turingMachine.setAlphabet(std::move(alphabet_));
+	turingMachine.setStates(std::move(states_));
+	turingMachine.setInitialState(std::move(initialState_));
+	turingMachine.setInstructions(std::move(instructions_));
+	turingMachine.setMemory(std::move(memory_));
+
 	#ifdef DEBUG
-	std::cerr << "Parsing over" << std::endl;
-	std::cerr << "Alphabet: " << alphabet_ << std::endl;
-	std::cerr << "Instructions: " << instructions_ << std::endl;
-	std::cerr << "Memory: " << memory_ << std::endl;
+	turingMachine.print_all();
 	#endif
 }

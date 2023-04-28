@@ -13,5 +13,13 @@
 
 	memory = {
 		$,1,1,0,0,1,$
+	},
+
+	states = {
+		q0,q1,q2
+	},
+
+	initial_state = {
+		q0
 	}
 }

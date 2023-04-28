@@ -42,6 +42,11 @@ TuringMachine::setInstructions(Instructions_&& instructions) {
 	instructions_ = instructions;
 }
 
+void
+TuringMachine::setMemory(Memory_&& memory) {
+	memory_ = memory;
+}
+
 std::pair<TuringMachine::States_::iterator, bool>  
 TuringMachine::insertState(const State_& state) {
 	return states_.insert(state);
@@ -145,4 +150,13 @@ TuringMachine::run() {
 	}
 
 	return memory_;
+}
+
+void
+TuringMachine::print_all() {
+	std::cerr << "Alphabet: " << alphabet_ << std::endl;
+	std::cerr << "States: " << states_ << std::endl;
+	std::cerr << "Current state: " << currentState_ << std::endl;
+	std::cerr << "Instructions: " << instructions_ << std::endl;
+	std::cerr << "Memory: " << memory_ << std::endl;
 }

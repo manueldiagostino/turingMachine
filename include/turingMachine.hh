@@ -39,7 +39,8 @@ public:
 	void setAlphabet(Alphabet_&& alphabet);
 	void setInitialState(State_&& state);
 	void setStates(States_&& states);
-	void setInstructions(Instructions_&& instructions_);
+	void setInstructions(Instructions_&& instructions);
+	void setMemory(Memory_&& memory);
 
 	std::pair<States_::iterator, bool> insertState(const State_& state);
 	std::pair<Alphabet_::iterator, bool> insertSymbol(const Symbol_& symbol);
@@ -48,6 +49,7 @@ public:
 	Alphabet_::iterator eraseSymbol(const Symbol_& symbol);
 	size_t eraseInstruction(Key_& key);
 
+	void print_all();
 	const Memory_& run();
 private:
 	Alphabet_ alphabet_;
