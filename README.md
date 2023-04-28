@@ -58,7 +58,7 @@ After writing the config file, you have to create a `TouringMachine tm` object, 
 ```
 void loadConfig(TuringMachine& turingMachine, const std::string& fileName);
 ``` 
-Then simply 
+then simply 
 ```
 std::cerr << tm.run() << std::endl;
 ```
@@ -66,7 +66,7 @@ std::cerr << tm.run() << std::endl;
 
 
 ## How to compile
-Inside the `test/` folder type:
+Inside the `test` folder type:
 ```
 g++ -Wall -Wextra -I../include ../src/configLoader.cpp ../src/turingMachine.cpp <your_file>.cpp
 ```
