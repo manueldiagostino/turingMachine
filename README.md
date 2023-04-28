@@ -18,7 +18,6 @@ The default filename for the configuration is `config.tm` (_soon an option to ch
 | _ID_               | $\rightarrow$ | _Char_ __,__ _CharID_                                                                                                                                                                                                        |
 | _Char_             | $\rightarrow$ | __a__ \| __b__ \| $\ldots$ \| __z__ \|__0__ \| __1__ \| $\ldots$ \| __9__ \| __$__ \| __%__ \| __#__ \| __&__                                                                                                                |
 | _move_             | $\rightarrow$ | __L__ \| __R__ \| __l__ \| __r__                                                                                                                                                                                             |
-|                    |               |                  |
 
 where terminals are in __bold__ font and nonterminals in _italics_. Vertical bars `|` separate alternatives. 
 Keywords `instructions`, `alphabet`, `states`, `initial_state`, `memory` are, at the moment, __case sensitive__. 
