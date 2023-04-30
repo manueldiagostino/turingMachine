@@ -70,7 +70,7 @@ ConfigLoader::parseMove() {
 		res = TuringMachine::Moves_::right;
 	}
 	else if (buffer_[pos_] == 'L' || buffer_[pos_] == 'l') {
-		res = TuringMachine::Moves_::right;
+		res = TuringMachine::Moves_::left;
 	}
 	else {
 		throw get_error("Invalid move <" + 

@@ -61,7 +61,9 @@ void loadConfig(TuringMachine& turingMachine, const std::string& fileName);
 ``` 
 then simply 
 ```
-std::cerr << tm.run() << std::endl;
+std::cerr << tm.getMemory() << std::endl;
+tm.run();
+std::cerr << tm.getMemory() << std::endl;
 ```
  to print the output.
 

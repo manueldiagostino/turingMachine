@@ -46,7 +46,7 @@ TuringMachine::setMemory(Memory_&& memory) {
 
 void
 TuringMachine::setHead() {
-	headPosition_ = memory_.begin();
+	headPosition_ = --memory_.end();
 }
 
 TuringMachine::Memory_& 
@@ -92,10 +92,9 @@ TuringMachine::eraseInstruction(Key_& key) {
 
 void
 TuringMachine::print_debug() {
-	std::cerr << std::endl;
-	std::cerr << "Memory: " << memory_ << std::endl;
-	std::cerr << "CurrentState: " << currentState_<< std::endl;
-	std::cerr << "Head: " << *headPosition_ 
+	std::cerr << "\tMemory: " << memory_ << std::endl;
+	std::cerr << "\tCurrentState: " << currentState_<< std::endl;
+	std::cerr << "\tHead: " << *headPosition_ 
 			  << " [index: " << headPosition_ - memory_.begin() << ']' << std::endl;
 }
 
@@ -104,7 +103,7 @@ TuringMachine::moveHead(const Moves_& direction) {
 	if (headPosition_ == memory_.begin() && direction == Moves_::left) {
 		memory_.push_front("$");
 		--headPosition_;
-	} else if (headPosition_+1 == memory_.end() && direction == Moves_::right) {
+	} else if (headPosition_ >= memory_.end()-2 && direction == Moves_::right) {
 		memory_.push_back("$");
 		++headPosition_;
 	} else if (direction == Moves_::left) {
@@ -119,23 +118,23 @@ TuringMachine::changeState() {
 	#define STATE 0
 	#define SYMBOL 1
 	#define MOVE 2
+
+	#ifdef DEBUG
+	std::cerr << std::endl;
+	std::cerr << "Step: " << steps_+1 << std::endl;
+	std::cerr << "\t<Current situation>" << std::endl;
+	print_debug();
+	#endif
+
 	Value_ next = instructions_.at({currentState_, *headPosition_});
 
 	#ifdef DEBUG
-	print_debug();
 	std::cerr << "Next: " << next << std::endl;
 	#endif
 
 	currentState_ = std::get<STATE>(next);
-	/* headPosition_= memory_.erase(headPosition_); // now head is in the next position
-	// replace the deleted elem
-	headPosition_= memory_.insert(headPosition_, std::get<SYMBOL>(next));  */
 	*headPosition_ = std::get<SYMBOL>(next);
 	moveHead(std::get<MOVE>(next));
-
-	#ifdef DEBUG
-	print_debug();
-	#endif
 
 	return headPosition_;
 }
@@ -143,13 +142,13 @@ TuringMachine::changeState() {
 const TuringMachine::Memory_&
 TuringMachine::run() {
 	#ifdef DEBUG
-	std::cerr << "run begin" << std::endl;
+	std::cerr << "**************** Run started *****************" << std::endl;
 	#endif
 
 	try {
 		while (true) {
 			changeState();
-			++steps;
+			++steps_;
 		}
 	}
 	catch(std::out_of_range& e) {

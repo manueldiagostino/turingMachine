@@ -62,7 +62,7 @@ private:
 	Memory_ memory_;
 	Memory_::iterator headPosition_;
 
-	size_t steps{0};
+	size_t steps_{0};
 	void print_debug();
 
 protected:

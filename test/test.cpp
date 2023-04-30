@@ -74,7 +74,9 @@ test_02() {
 
 	try {
 		cl.loadConfig(tm, "config.tm");
-		std::cerr << tm.run() << std::endl;
+		std::cerr << tm.getMemory() << std::endl;
+		tm.run();
+		std::cerr << tm.getMemory() << std::endl;
 	} catch (std::string& e) {
 		std::cerr << e << std::endl;
 	}
