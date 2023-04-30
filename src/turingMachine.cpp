@@ -1,4 +1,21 @@
+#include "../include/colors.hh"
 #include "../include/turingMachine.hh"
+
+TuringMachine::TuringMachine() : 
+	alphabet_{},
+	states_{},
+	currentState_{},
+	instructions_{},
+	memory_{},
+	headPosition_{memory_.begin()},
+	backgroundColor_{Color::BG_MAGENTA},
+	defaultBackgroundColor_{Color::BG_DEFAULT} {
+	
+	#ifdef DEBUG
+	std::cerr << "Macchina costruita" << std::endl;
+	print_all();
+	#endif
+}
 
 TuringMachine::TuringMachine(
 	const Alphabet_& alphabet, const States_& states, 
@@ -10,13 +27,15 @@ TuringMachine::TuringMachine(
 	currentState_{initialState},
 	instructions_{instructions},
 	memory_{memory},
-	headPosition_{memory_.begin()} { 
+	headPosition_{memory_.begin()},
+	backgroundColor_{Color::BG_MAGENTA},
+	defaultBackgroundColor_{Color::BG_DEFAULT} { 
 
-		#ifdef DEBUG
-		std::cerr << "Macchina costruita" << std::endl;
-		print_all();
-		#endif
-	}
+	#ifdef DEBUG
+	std::cerr << "Macchina costruita" << std::endl;
+	print_all();
+	#endif
+}
 
 void
 TuringMachine::setAlphabet(Alphabet_&& alphabet) {
@@ -92,7 +111,8 @@ TuringMachine::eraseInstruction(Key_& key) {
 
 void
 TuringMachine::print_debug() {
-	std::cerr << "\tMemory: " << memory_ << std::endl;
+	print_memory(std::cerr);
+	std::cerr << std::endl;
 	std::cerr << "\tCurrentState: " << currentState_<< std::endl;
 	std::cerr << "\tHead: " << *headPosition_ 
 			  << " [index: " << headPosition_ - memory_.begin() << ']' << std::endl;
@@ -159,6 +179,22 @@ TuringMachine::run() {
 	}
 
 	return memory_;
+}
+
+void 
+TuringMachine::print_memory(std::ostream& os) {
+	os << "\tMemory: {";
+	for (auto it=memory_.begin(); it!=memory_.end();) {
+		if (it == headPosition_)
+			os << backgroundColor_ << *it << defaultBackgroundColor_;
+		else
+			os << *it;
+
+		++it;
+		if (it != memory_.end())
+			os << " ";
+	}
+	os << '}';
 }
 
 void
