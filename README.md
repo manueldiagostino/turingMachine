@@ -73,3 +73,8 @@ Inside the `test` folder type:
 ```
 g++ -Wall -Wextra -I../include ../src/configLoader.cpp ../src/turingMachine.cpp <your_file>.cpp
 ```
+or
+```
+g++ -DDEBUG -Wall -Wextra -I../include ../src/configLoader.cpp ../src/turingMachine.cpp <your_file>.cpp
+```
+to get a step-by-step computation.
