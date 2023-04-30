@@ -73,7 +73,7 @@ test_02() {
 	TuringMachine tm;
 
 	try {
-		cl.loadConfig(tm, "config.tm");
+		cl.loadConfig(tm, "copy.tm");
 		std::cerr << tm.getMemory() << std::endl;
 		tm.run();
 		std::cerr << tm.getMemory() << std::endl;

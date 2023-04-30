@@ -9,6 +9,8 @@
 #include <algorithm>
 #include <iostream>
 
+#include "colors.hh"
+
 class TuringMachine {
 public:
 	enum struct Moves_ {left, right};
@@ -23,7 +25,7 @@ public:
 	using Instructions_ = std::map<Key_, Value_>;
 	using Memory_ = std::deque<Symbol_>;
 
-	TuringMachine() = default;
+	TuringMachine();
 	TuringMachine(
 		const Alphabet_& alphabet, const States_& states, 
 		const State_& initialState, const Instructions_& instructions,
@@ -62,7 +64,12 @@ private:
 	Memory_ memory_;
 	Memory_::iterator headPosition_;
 
+	// debug stuff
+	Color::Modifier backgroundColor_;
+	Color::Modifier defaultBackgroundColor_;
+
 	size_t steps_{0};
+	void print_memory(std::ostream& os);
 	void print_debug();
 
 protected:
