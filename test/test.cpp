@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include "../include/turingMachine.hh"
-#include "../include/configLoader.hh"
+#include "../include/TuringMachine.hh"
+#include "../include/ConfigLoader.hh"
 #include <vector>
 
 void
@@ -69,7 +69,7 @@ test_02() {
 	std::cerr << std::endl;
 	std::cerr << "************** TEST 02 **************" << std::endl;
 
-	ConfigLoader cl;
+	Loaders::ConfigLoader cl;
 	TuringMachine tm;
 
 	try {
@@ -83,9 +83,22 @@ test_02() {
 	std::cerr << "********* TEST 02 COMPLETED *********" << std::endl;
 }
 
-int main(int argc, char const *argv[]) {
-	test_01();
-	test_02();
+void
+test_03(int argc, char *argv[]) {
+	std::cerr << std::endl;
+	std::cerr << "************** TEST 03 **************" << std::endl;
+	
+	Loaders::ConfigLoader cl;
+	TuringMachine tm;
+	
+	cl.loadConfig(tm, "copy.tm", argc, argv);
+	tm.run();
+}
+
+int main(int argc, char *argv[]) {
+	// test_01();
+	// test_02();
+	test_03(argc, argv);
 
 	return 0;
 }

@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <iostream>
 
-#include "colors.hh"
+#include "Colors.hh"
 
 class TuringMachine {
 public:
@@ -44,6 +44,7 @@ public:
 	void setInstructions(Instructions_&& instructions);
 	void setMemory(Memory_&& memory);
 	void setHead();
+	void setBackgroundColor(Color::Code color);
 
 	Memory_& getMemory();
 
@@ -64,10 +65,6 @@ private:
 	Memory_ memory_;
 	Memory_::iterator headPosition_;
 
-	// debug stuff
-	Color::Modifier backgroundColor_;
-	Color::Modifier defaultBackgroundColor_;
-
 	size_t steps_{0};
 	void print_memory(std::ostream& os);
 	void print_debug();
@@ -75,6 +72,10 @@ private:
 protected:
 	void moveHead(const Moves_& direction);
 	Memory_::iterator changeState();
+
+	// * debug stuff
+	Color::Modifier backgroundColor_;
+	Color::Modifier defaultBackgroundColor_;
 };
 
 template <typename T>

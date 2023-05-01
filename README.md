@@ -68,6 +68,8 @@ std::cerr << tm.getMemory() << std::endl;
  to print the output.
 
 
+---
+
 ## How to compile
 Inside the `test` folder type:
 ```
@@ -78,3 +80,12 @@ or
 g++ -DDEBUG -Wall -Wextra -I../include ../src/configLoader.cpp ../src/turingMachine.cpp <your_file>.cpp
 ```
 to get a step-by-step computation.
+
+### Optional arguments
+
+| command            |                                                          |
+| ------------------ | -------------------------------------------------------- |
+| `-c, --head-color` | Changes head's highlighting color                        |
+| ` -t, --tab-width` | Set the tab width (default is 4, useful in `DEBUG` mode) |
+| `-h,--help`        | Shows the help message (look here for available colors)  |
+|                    |                                                          |
