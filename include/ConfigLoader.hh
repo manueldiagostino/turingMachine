@@ -33,9 +33,10 @@ public:
 	void 
 	setTabSize(size_t size);
 
-	const struct option long_options[2] = {
+	const struct option long_options[3] = {
         {"tab-width"        , no_argument       , 0,    't'},
-        {"head-color"      	, no_argument       , 0,    'c'}
+        {"head-color"      	, no_argument       , 0,    'c'},
+        {"help"		      	, no_argument       , 0,    'h'}
     };
 
 	int 

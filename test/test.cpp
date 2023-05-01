@@ -91,13 +91,13 @@ test_03(int argc, char *argv[]) {
 	Loaders::ConfigLoader cl;
 	TuringMachine tm;
 	
-	cl.loadConfig(tm, "reverse.tm", argc, argv);
+	cl.loadConfig(tm, "copy.tm", argc, argv);
 	tm.run();
 }
 
 int main(int argc, char *argv[]) {
 	// test_01();
-	test_02();
+	// test_02();
 	test_03(argc, argv);
 
 	return 0;

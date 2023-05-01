@@ -482,6 +482,7 @@ ConfigLoader::print_usage(char **argv) {
 	std::cerr << "\t                 \t  - white" 	<< std::endl;
 	std::cerr << "\t                 \t  - yellow" 	<< std::endl;
 	std::cerr << "\t-t, --tab-width: \tset the tab width (default is 4); useful in the DEBUG mode" 	<< std::endl;
+	std::cerr << "\t-h, --help:      \tprint this dialog" 											<< std::endl;
 }
 
 int 
@@ -490,7 +491,7 @@ ConfigLoader::parse_cmd(int argc, char **argv, ConfigLoader& cl, TuringMachine& 
 
 	int c;
     std::string color;
-    while ((c = getopt_long(argc, argv, ":t:c:", long_options, &option_index)) != -1) {
+    while ((c = getopt_long(argc, argv, ":t:c:h", long_options, &option_index)) != -1) {
         switch (c) {
         /* case 'v':
 			#ifndef DEBUG
@@ -521,14 +522,18 @@ ConfigLoader::parse_cmd(int argc, char **argv, ConfigLoader& cl, TuringMachine& 
             print_usage(argv);
             return 1;
         case '?':
-            std::cerr << "Unknown option";
+            std::cerr << Color::MD_FG_RED << "Unknown option";
             if (optopt)
                 std::cerr << " -" << (char)optopt << std::endl;
             else
                 std::cerr << std::endl;
+			std::cerr << Color::MD_FG_DEFAULT;
 
             print_usage(argv);
             return 1;
+		case 'h':
+			print_usage(argv);
+			break;
         default:
             break;
         }
