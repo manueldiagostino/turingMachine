@@ -61,7 +61,7 @@ ConfigLoader::incr() {
 inline
 bool
 ConfigLoader::is_valid_char(char_type c) {
-	return std::isalnum(c) || c == '$' || c == '#' || c == '&' || c == '%';
+	return std::isalnum(c) || c == '$' || c == '#' || c == '&' || c == '%' || c == '_';
 }
 
 TuringMachine::Moves_
