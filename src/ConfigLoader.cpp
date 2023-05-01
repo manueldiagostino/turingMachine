@@ -1,11 +1,14 @@
 #include <sstream>
 #include <cstring>
 
-#include "../include/configLoader.hh"
+#include "../include/ConfigLoader.hh"
+
+using namespace Loaders;
 
 ConfigLoader::ConfigLoader() :
 	fileName_{},
 	configFile_{},
+	tabSize_{4},
 	newlinesCount_{0},
 	charCount_{0},
 	pos_{0},
@@ -390,7 +393,14 @@ ConfigLoader::parseElements() {
 }
 
 void
-ConfigLoader::loadConfig(TuringMachine& turingMachine, const std::string& fileName) {
+ConfigLoader::loadConfig(
+	TuringMachine& turingMachine, const std::string& fileName,
+	int argc, char **argv) {
+	
+	if (argc != 0) {
+		parse_cmd(argc, argv, *this, turingMachine);
+	}
+
 	if (fileName != "")
 		fileName_ = fileName;
 
@@ -399,7 +409,7 @@ ConfigLoader::loadConfig(TuringMachine& turingMachine, const std::string& fileNa
 		throw ("<" + fileName_ + ">" + ": no such file\n");
 
 	#ifdef DEBUG
-	std::cerr << "File opened" << std::endl;
+	printDebug("File opened");
 	#endif
 
 	std::stringstream b;
@@ -407,7 +417,7 @@ ConfigLoader::loadConfig(TuringMachine& turingMachine, const std::string& fileNa
 	buffer_ = b.str();
 
 	#ifdef DEBUG
-	std::cerr << "buffer_ opened" << std::endl;
+	printDebug("buffer_ opened");
 	#endif
 	
 	eat_spaces();
@@ -442,4 +452,87 @@ ConfigLoader::loadConfig(TuringMachine& turingMachine, const std::string& fileNa
 	#ifdef DEBUG
 	turingMachine.print_all();
 	#endif
+}
+
+void 
+ConfigLoader::setTabSize(size_t size) {
+	tabSize_ = size;
+}
+
+
+void
+ConfigLoader::printDebug(const std::string& msg) {
+	std::cerr 
+		<< Color::Modifier(Color::FG_GREEN) << "[DEBUG]:\t"
+		<< msg 
+		<< Color::Modifier(Color::FG_DEFAULT) << std::endl;
+}
+
+void
+ConfigLoader::print_usage(char **argv) {
+	std::cerr << "Usage: " << argv[0] << " [Options] " << std::endl;
+	// std::cerr << "\t-v, --verbose:   \tperform a step-by-step computation" 							<< std::endl;
+	
+	std::cerr << "\n[Options]" << std::endl;
+	std::cerr << "\t-c, --head-color:\tchanges head's highlighting color; possible ones are" 		<< std::endl;
+	std::cerr << "\t                 \t  - blue" 		<< std::endl;
+	std::cerr << "\t                 \t  - green" 		<< std::endl;
+	std::cerr << "\t                 \t  - magenta" 	<< std::endl;
+	std::cerr << "\t                 \t  - red" 		<< std::endl;
+	std::cerr << "\t                 \t  - white" 	<< std::endl;
+	std::cerr << "\t                 \t  - yellow" 	<< std::endl;
+	std::cerr << "\t-t, --tab-width: \tset the tab width (default is 4); useful in the DEBUG mode" 	<< std::endl;
+}
+
+int 
+ConfigLoader::parse_cmd(int argc, char **argv, ConfigLoader& cl, TuringMachine& tm) {
+	int option_index = 0;
+
+	int c;
+    std::string color;
+    while ((c = getopt_long(argc, argv, ":t:c:", long_options, &option_index)) != -1) {
+        switch (c) {
+        /* case 'v':
+			#ifndef DEBUG
+			#define DEBUG 1
+			#endif
+			printDebug("Verbose mod on");
+            break; */
+        case 'c':
+            color = std::string(optarg);
+			tm.setBackgroundColor(Color::BG_Converter(color));
+
+			#ifdef DEBUG
+			printDebug("Highlight color set to " + color);
+			#endif
+            break;
+        case 't':
+			c = atoi(optarg);
+            cl.setTabSize(c);
+
+			#ifdef DEBUG
+			printDebug("Tab size set to " + std::to_string(c));
+			#endif
+            break;
+        case ':':
+            std::cerr << Color::MD_FG_RED
+			<< "Option -" << (char)optopt << " needs an argument." 
+			<< Color::MD_FG_DEFAULT << std::endl;
+            print_usage(argv);
+            return 1;
+        case '?':
+            std::cerr << "Unknown option";
+            if (optopt)
+                std::cerr << " -" << (char)optopt << std::endl;
+            else
+                std::cerr << std::endl;
+
+            print_usage(argv);
+            return 1;
+        default:
+            break;
+        }
+    }
+
+    return 0;
 }

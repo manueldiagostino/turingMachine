@@ -1,5 +1,4 @@
-#include "../include/colors.hh"
-#include "../include/turingMachine.hh"
+#include "../include/TuringMachine.hh"
 
 TuringMachine::TuringMachine() : 
 	alphabet_{},
@@ -12,7 +11,6 @@ TuringMachine::TuringMachine() :
 	defaultBackgroundColor_{Color::BG_DEFAULT} {
 	
 	#ifdef DEBUG
-	std::cerr << "Macchina costruita" << std::endl;
 	print_all();
 	#endif
 }
@@ -32,7 +30,6 @@ TuringMachine::TuringMachine(
 	defaultBackgroundColor_{Color::BG_DEFAULT} { 
 
 	#ifdef DEBUG
-	std::cerr << "Macchina costruita" << std::endl;
 	print_all();
 	#endif
 }
@@ -199,9 +196,16 @@ TuringMachine::print_memory(std::ostream& os) {
 
 void
 TuringMachine::print_all() {
-	std::cerr << "Alphabet: " << alphabet_ << std::endl;
-	std::cerr << "States: " << states_ << std::endl;
-	std::cerr << "Current state: " << currentState_ << std::endl;
-	std::cerr << "Instructions: " << instructions_ << std::endl;
-	std::cerr << "Memory: " << memory_ << std::endl;
+
+	std::cerr << "\nCurrent " << Color::MD_FG_GREEN << "[INFO]:" << Color::MD_FG_DEFAULT << std::endl;
+	std::cerr << "\t- Alphabet: " << alphabet_ << std::endl;
+	std::cerr << "\t- States: " << states_ << std::endl;
+	std::cerr << "\t- Current state: " << currentState_ << std::endl;
+	std::cerr << "\t- Instructions: " << instructions_ << std::endl;
+	std::cerr << "\t- Memory: " << memory_ << std::endl << std::endl;
+}
+
+void
+TuringMachine::setBackgroundColor(Color::Code color) {
+	backgroundColor_ = color;
 }
